@@ -78,7 +78,7 @@ resource "google_cloud_run_v2_service" "app" {
 
       env {
         name  = "DB_SSL"
-        value = "false"   # traffic stays inside VPC — SSL at transport layer not needed
+        value = "true"   # traffic stays inside VPC — SSL at transport layer not needed
       }
 
       # Health check — Cloud Run uses this to know the container is ready
