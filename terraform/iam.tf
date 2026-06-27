@@ -91,12 +91,12 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
   }
 
   # Only allow tokens from YOUR specific GitHub repo
-  attribute_condition = "attribute.repository == 'YOUR_GITHUB_USERNAME/devsecops-assessment'"
+attribute_condition = "attribute.repository == 'abi11sdf/icliniq_project_assessment'"
 }
 
 # Allow GitHub Actions (via OIDC) to impersonate the cicd_sa
 resource "google_service_account_iam_member" "github_oidc_binding" {
   service_account_id = google_service_account.cicd_sa.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/YOUR_GITHUB_USERNAME/devsecops-assessment"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/abi11sdf/icliniq_project_assessment"
 }
