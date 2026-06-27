@@ -1,0 +1,95 @@
+# ─── CD Pipeline ────────────────────────────────────────
+# Triggers ONLY when CI workflow completes successfully on main branch
+# Deploys the new image to Cloud Run
+
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]          # waits for CI to finish
+    types: [completed]
+    branches: [main]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  GAR_REPO: assessment-app
+  IMAGE_NAME: app
+  CLOUD_RUN_SERVICE: assessment-app
+
+jobs:
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+
+    # Only deploy if CI passed — not if it failed
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      contents: read
+      id-token: write            # required for OIDC
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP via Workload Identity (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Set image URL
+        run: |
+          echo "IMAGE_URL=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.IMAGE_NAME }}:${{ github.event.workflow_run.head_sha }}" >> $GITHUB_ENV
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
+            --image=${{ env.IMAGE_URL }} \
+            --region=${{ env.REGION }} \
+            --platform=managed \
+            --service-account=cloudrun-app-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+            --set-env-vars="DB_SSL=false" \
+            --update-secrets="DB_PASSWORD=db-password:latest,DB_HOST=db-host:latest,DB_NAME=db-name:latest,DB_USER=db-user:latest" \
+            --vpc-connector=assessment-connector \
+            --vpc-egress=private-ranges-only \
+            --min-instances=0 \
+            --max-instances=3 \
+            --memory=512Mi \
+            --cpu=1 \
+            --port=8080 \
+            --allow-unauthenticated
+
+      - name: Verify deployment health
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)')
+
+          echo "Service deployed at: $SERVICE_URL"
+
+          # Hit the health endpoint to confirm it's alive
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL/health")
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "Health check failed — got HTTP $HTTP_STATUS"
+            exit 1
+          fi
+
+          echo "Health check passed — deployment successful"
+
+      - name: Output deployment summary
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)')
+
+          echo "### Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Service:** ${{ env.CLOUD_RUN_SERVICE }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** ${{ env.IMAGE_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** $SERVICE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "- **Health:** ✅ Passing" >> $GITHUB_STEP_SUMMARY

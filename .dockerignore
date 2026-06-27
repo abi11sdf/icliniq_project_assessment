@@ -1,0 +1,13 @@
+# Don't copy these into the Docker build context
+node_modules/
+npm-debug.log
+.env
+.env.*
+!.env.example
+coverage/
+.git/
+.github/
+terraform/
+*.md
+__tests__/
+.dockerignore
