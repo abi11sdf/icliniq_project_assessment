@@ -13,7 +13,7 @@ terraform {
   # Create this bucket manually once before running terraform init
   # gsutil mb -p YOUR_PROJECT_ID gs://YOUR_PROJECT_ID-tfstate
   backend "gcs" {
-    bucket = "YOUR_PROJECT_ID-tfstate"   # ← replace before init
+    bucket = "devsecops-project-500708-tfstate" # ← replace before init
     prefix = "devsecops-assessment"
   }
 }

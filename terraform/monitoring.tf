@@ -51,14 +51,14 @@ resource "google_monitoring_alert_policy" "cpu_warning" {
 
       comparison      = "COMPARISON_GT"
       threshold_value = 0.70
-      duration        = "60s"   # must stay above 70% for 60s before alerting
+      duration        = "60s" # must stay above 70% for 60s before alerting
     }
   }
 
   notification_channels = [google_monitoring_notification_channel.google_chat.id]
 
   alert_strategy {
-    auto_close = "1800s"   # auto-close alert after 30 min if resolved
+    auto_close = "1800s" # auto-close alert after 30 min if resolved
   }
 
   documentation {
@@ -92,7 +92,7 @@ resource "google_monitoring_alert_policy" "cpu_critical" {
 
       comparison      = "COMPARISON_GT"
       threshold_value = 0.80
-      duration        = "300s"  # sustained above 80% for 5 min = critical
+      duration        = "300s" # sustained above 80% for 5 min = critical
     }
   }
 
@@ -201,9 +201,9 @@ resource "google_logging_metric" "app_errors" {
   EOT
 
   metric_descriptor {
-    metric_kind = "DELTA"
-    value_type  = "INT64"
-    unit        = "1"
+    metric_kind  = "DELTA"
+    value_type   = "INT64"
+    unit         = "1"
     display_name = "Application Error Count"
   }
 }

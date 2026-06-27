@@ -1,0 +1,8 @@
+project_id          = "devsecops-project-500708"
+region              = "us-central1"
+db_name             = "icliniqdb"
+db_user             = "icliniqadmin"
+db_password         = "IcliniqSecure2024DB"
+alert_email         = "abiprasanth07@gmail.com"
+google_chat_webhook = "https://chat.googleapis.com/v1/spaces/REPLACE"
+image_tag           = "latest"
