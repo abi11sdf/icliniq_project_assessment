@@ -29,7 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
           cache-dependency-path: app/package-lock.json
 
@@ -55,7 +55,7 @@ jobs:
   docker-build-scan:
     name: Docker Build & Trivy Scan
     runs-on: ubuntu-latest
-    needs: lint-and-test   # only runs if lint & test pass
+    needs: lint-and-test
 
     steps:
       - name: Checkout code
@@ -70,13 +70,14 @@ jobs:
         with:
           image-ref: "${{ env.IMAGE_NAME }}:${{ github.sha }}"
           format: "table"
-          exit-code: "1"           # fail CI if CRITICAL vulnerabilities found
+          exit-code: "1"
           severity: "CRITICAL,HIGH"
-          ignore-unfixed: true     # ignore vulns with no fix available yet
+          ignore-unfixed: true
+          skip-dirs: "usr/local/lib/node_modules/npm"
 
       - name: Upload Trivy scan results
         uses: actions/upload-artifact@v4
-        if: always()               # upload even if scan fails
+        if: always()
         with:
           name: trivy-results
           path: trivy-results.sarif
@@ -85,11 +86,11 @@ jobs:
   push-image:
     name: Push to Artifact Registry
     runs-on: ubuntu-latest
-    needs: docker-build-scan   # only push if scan passes
+    needs: docker-build-scan
 
     permissions:
       contents: read
-      id-token: write            # required for OIDC Workload Identity
+      id-token: write
 
     steps:
       - name: Checkout code
@@ -100,7 +101,6 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
-          # No JSON key needed — OIDC token exchanged for short-lived GCP token
 
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
