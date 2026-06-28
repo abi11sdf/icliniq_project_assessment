@@ -1,6 +1,6 @@
 # ─── Stage 1: Builder ───────────────────────────────────
 # Install ALL dependencies (including devDependencies for tests/lint)
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN npm test
 
 # ─── Stage 2: Production ────────────────────────────────
 # Fresh slim image — no dev tools, no test files, smaller attack surface
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 # Security: don't run as root
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
