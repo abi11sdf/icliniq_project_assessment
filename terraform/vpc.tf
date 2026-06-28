@@ -20,7 +20,7 @@ resource "google_project_service" "apis" {
 # Custom VPC — never use the default VPC in production
 resource "google_compute_network" "vpc" {
   name                    = "assessment-vpc"
-  auto_create_subnetworks = false   # we control subnets manually
+  auto_create_subnetworks = false # we control subnets manually
   depends_on              = [google_project_service.apis]
 }
 
@@ -57,7 +57,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 resource "google_vpc_access_connector" "connector" {
   name          = "assessment-connector"
   region        = var.region
-  ip_cidr_range = "10.8.0.0/28"   # small range just for the connector
+  ip_cidr_range = "10.8.0.0/28" # small range just for the connector
   network       = google_compute_network.vpc.id
   depends_on    = [google_project_service.apis]
 }

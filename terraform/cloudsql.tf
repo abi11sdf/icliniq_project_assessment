@@ -6,18 +6,18 @@ resource "google_sql_database_instance" "main" {
   region           = var.region
 
   settings {
-    tier = "db-f1-micro"   # smallest tier — good for assessment
+    tier = "db-f1-micro" # smallest tier — good for assessment
 
     # ── Security: NO public IP ──────────────────────────
     ip_configuration {
-      ipv4_enabled    = false          # no public IP — traffic never leaves VPC
+      ipv4_enabled    = false # no public IP — traffic never leaves VPC
       private_network = google_compute_network.vpc.id
       ssl_mode        = "ENCRYPTED_ONLY"
     }
 
     backup_configuration {
       enabled    = true
-      start_time = "02:00"   # backup at 2am UTC daily
+      start_time = "02:00" # backup at 2am UTC daily
     }
 
     database_flags {
@@ -32,7 +32,7 @@ resource "google_sql_database_instance" "main" {
   }
 
   # Prevent accidental deletion via terraform destroy
-  deletion_protection = false   # set true in real production
+  deletion_protection = false # set true in real production
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
 }
@@ -47,5 +47,5 @@ resource "google_sql_database" "app_db" {
 resource "google_sql_user" "app_user" {
   name     = var.db_user
   instance = google_sql_database_instance.main.name
-  password = var.db_password   # comes from terraform.tfvars → Secret Manager
+  password = var.db_password # comes from terraform.tfvars → Secret Manager
 }

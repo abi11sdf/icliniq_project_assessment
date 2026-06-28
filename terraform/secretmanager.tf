@@ -13,7 +13,7 @@ resource "google_secret_manager_secret" "db_password" {
 
 resource "google_secret_manager_secret_version" "db_password" {
   secret      = google_secret_manager_secret.db_password.id
-  secret_data = var.db_password   # comes from terraform.tfvars (never committed)
+  secret_data = var.db_password # comes from terraform.tfvars (never committed)
 }
 
 # DB Host secret (Cloud SQL private IP)

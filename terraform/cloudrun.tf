@@ -13,11 +13,11 @@ resource "google_cloud_run_v2_service" "app" {
     # Connect to VPC so the app can reach Cloud SQL's private IP
     vpc_access {
       connector = google_vpc_access_connector.connector.id
-      egress    = "PRIVATE_RANGES_ONLY"   # only private traffic goes through VPC
+      egress    = "PRIVATE_RANGES_ONLY" # only private traffic goes through VPC
     }
 
     scaling {
-      min_instance_count = 0    # scale to zero when no traffic (saves cost)
+      min_instance_count = 0 # scale to zero when no traffic (saves cost)
       max_instance_count = 3
     }
 
@@ -78,7 +78,7 @@ resource "google_cloud_run_v2_service" "app" {
 
       env {
         name  = "DB_SSL"
-        value = "false"   # traffic stays inside VPC — SSL at transport layer not needed
+        value = "true" # traffic stays inside VPC — SSL at transport layer not needed
       }
 
       # Health check — Cloud Run uses this to know the container is ready
