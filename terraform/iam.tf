@@ -91,7 +91,7 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
   }
 
   # Only allow tokens from YOUR specific GitHub repo
-attribute_condition = "attribute.repository == 'abi11sdf/icliniq_project_assessment'"
+  attribute_condition = "attribute.repository == 'abi11sdf/icliniq_project_assessment'"
 }
 
 # Allow GitHub Actions (via OIDC) to impersonate the cicd_sa
