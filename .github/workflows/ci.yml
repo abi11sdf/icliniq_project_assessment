@@ -63,7 +63,7 @@ jobs:
 
       - name: Build Docker image locally for scanning
         run: |
-          docker build -t $IMAGE_NAME:${{ github.sha }} .
+          docker build --no-cache -t $IMAGE_NAME:${{ github.sha }} .
 
       - name: Run Trivy vulnerability scan
         uses: aquasecurity/trivy-action@master
@@ -109,7 +109,7 @@ jobs:
         run: |
           IMAGE_URL="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.IMAGE_NAME }}"
 
-          docker build -t $IMAGE_URL:${{ github.sha }} \
+          docker build --no-cache -t $IMAGE_URL:${{ github.sha }} \
                        -t $IMAGE_URL:latest .
 
           docker push $IMAGE_URL:${{ github.sha }}
