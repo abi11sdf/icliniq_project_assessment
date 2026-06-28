@@ -53,7 +53,7 @@ jobs:
             --region=${{ env.REGION }} \
             --platform=managed \
             --service-account=cloudrun-app-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
-            --set-env-vars="DB_SSL=false" \
+            --set-env-vars="DB_SSL=true" \
             --update-secrets="DB_PASSWORD=db-password:latest,DB_HOST=db-host:latest,DB_NAME=db-name:latest,DB_USER=db-user:latest" \
             --vpc-connector=assessment-connector \
             --vpc-egress=private-ranges-only \
